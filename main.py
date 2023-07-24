@@ -84,7 +84,7 @@ if __name__ == "__main__":
             valid_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, #pin_memory=True
         )
         
-        scheduler_warmup = GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=len(train_loader), after_scheduler=None)
+        scheduler_warmup = GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=args.warmup_epochs, after_scheduler=None)
         trainer = Trainer(
             train_loader, valid_loader, model, loss_fn, optimizer, scheduler_warmup, device, args.patience, args.epochs, fold_result_path, fold_logger, len(train_dataset), len(valid_dataset))
         trainer.train() #start training

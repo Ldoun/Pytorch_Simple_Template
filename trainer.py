@@ -28,6 +28,7 @@ class Trainer():
         for epoch in range(1,self.epochs+1):
             loss_train, score_train = self.train_step()
             loss_val, score_val = self.valid_step()
+            self.scheduler.step()
 
             self.logger.info(f'Epoch {str(epoch).zfill(5)}: t_loss:{loss_train:.3f} t_score:{score_train:.3f} v_loss:{loss_val:.3f} v_score:{score_val:.3f}')
 
@@ -55,7 +56,6 @@ class Trainer():
             loss = self.loss_fn(output, y)
             loss.backward()
             self.optimizer.step()
-            self.scheduler.step()
 
             total_loss += loss.item() * x.shape[0]
             correct += sum(output.argmax(dim=1) == y).item() # classification task

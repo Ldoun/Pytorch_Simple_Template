@@ -12,10 +12,10 @@ def args_for_train(parser):
     parser.add_argument('--cv_k', type=int, default=10, help='k-fold stratified cross validation')
     parser.add_argument('--num_workers', type=int, default=4, help='num_workers')
     parser.add_argument('--batch_size', type=int, default=None, help='batch_size')
-    parser.add_argument('--epochs', type=int, default=100, help='max epochs')
-    parser.add_argument('--patience', type=int, default=7, help='patience for early stopping')    
+    parser.add_argument('--epochs', type=int, default=1000, help='max epochs')
+    parser.add_argument('--patience', type=int, default=15, help='patience for early stopping')    
     parser.add_argument('--lr', type=float, default=5e-4, help='learning rate for the optimizer')
-    parser.add_argument('--warmup_epochs', type=int, default=3, help='number of warmup epoch of lr scheduler')
+    parser.add_argument('--warmup_epochs', type=int, default=10, help='number of warmup epoch of lr scheduler')
 
     parser.add_argument('--continue_train', type=int, default=-1, help='continue training from fold x') 
     parser.add_argument('--continue_from_folder', type=str, help='continue training from args.continue_from')
