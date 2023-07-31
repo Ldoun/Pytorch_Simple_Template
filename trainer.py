@@ -2,10 +2,7 @@ import os
 import sys
 import torch
 import numpy as np
-import pandas as pd
 from tqdm import tqdm
-
-from utils import batch_dice_score
 
 class Trainer():
     def __init__(self, train_loader, valid_loader, model, loss_fn, optimizer, scheduler, device, patience, epochs, result_path, fold_logger, len_train, len_valid):

@@ -3,8 +3,6 @@ import torch
 import random
 import numpy as np
 
-from data import rle_decode, rle_encode
-
 def seed_everything(seed: int):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)

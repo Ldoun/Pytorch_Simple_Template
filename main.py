@@ -1,23 +1,19 @@
 import os
 import logging
-import numpy as np
 import pandas as pd
 from functools import partial
-from sklearn.model_selection import StratifiedKFold, KFold
+from sklearn.model_selection import StratifiedKFold
 
 import torch
 from torch import optim, nn
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import CosineAnnealingLR
-from warmup_scheduler import GradualWarmupScheduler
 
-from config import get_args
-from trainer import Trainer
-from dice_loss import dice_loss
-from utils import seed_everything
 from models import Temp
 from data import DataSet
-from auto_batch_size import max_gpu_batch_size
+from trainer import Trainer
+from config import get_args
+from lr_scheduler import get_sch
+from utils import seed_everything
 
 if __name__ == "__main__":
     args = get_args()
@@ -27,7 +23,7 @@ if __name__ == "__main__":
     if args.continue_train > 0:
         result_path = args.continue_from_folder
     else:
-        result_path = os.path.join(args.result_path, args.pretrained_model.replace('/', '_') +'_'+str(len(os.listdir(args.result_path))))
+        result_path = os.path.join(args.result_path, args.model +'_'+str(len(os.listdir(args.result_path))))
         os.makedirs(result_path)
     
     logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -76,6 +72,7 @@ if __name__ == "__main__":
         model = Temp(args).to(device) #make model based on the model name and args
         loss_fn = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
+        scheduler = get_sch(args.scheduler)(optimizer)
 
         train_loader = DataLoader(
             train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, #pin_memory=True
@@ -84,9 +81,8 @@ if __name__ == "__main__":
             valid_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, #pin_memory=True
         )
         
-        scheduler_warmup = GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=args.warmup_epochs, after_scheduler=None)
         trainer = Trainer(
-            train_loader, valid_loader, model, loss_fn, optimizer, scheduler_warmup, device, args.patience, args.epochs, fold_result_path, fold_logger, len(train_dataset), len(valid_dataset))
+            train_loader, valid_loader, model, loss_fn, optimizer, scheduler, device, args.patience, args.epochs, fold_result_path, fold_logger, len(train_dataset), len(valid_dataset))
         trainer.train() #start training
 
         test_dataset = DataSet(file_list=test_data['path'].values, label=test_data['label'].values)
