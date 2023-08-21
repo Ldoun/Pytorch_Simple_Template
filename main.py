@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import pandas as pd
 from functools import partial
@@ -13,7 +14,7 @@ from data import DataSet
 from trainer import Trainer
 from config import get_args
 from lr_scheduler import get_sch
-from utils import seed_everything
+from utils import seed_everything, handle_unhandled_exception, save_to_json
 
 if __name__ == "__main__":
     args = get_args()
@@ -30,7 +31,8 @@ if __name__ == "__main__":
     logger = logging.getLogger()
     logger.addHandler(logging.FileHandler(os.path.join(result_path, 'log.log')))    
     logger.info(args)
-    #logger to log result of every output
+    save_to_json(vars(args), os.path.join(result_path, 'config.json'))
+    sys.excepthook = partial(handle_unhandled_exception,logger=logger)
 
     train_data = pd.read_csv(args.train)
     train_data['path'] = train_data['path'].apply(lambda x: os.path.join(args.path, x))
