@@ -17,8 +17,6 @@ class Trainer():
         self.epochs = epochs
         self.logger = fold_logger
         self.best_model_path = os.path.join(result_path, 'best_model.pt')
-        self.len_train = len_train
-        self.len_valid = len_valid
     
     def train(self):
         best = np.inf
@@ -57,7 +55,7 @@ class Trainer():
             total_loss += loss.item() * x.shape[0]
             correct += sum(output.argmax(dim=1) == y).item() # classification task
         
-        return total_loss/self.len_train, correct/self.len_train
+        return total_loss/len(self.train_loader.dataset), correct/len(self.train_loader.dataset)
     
     def valid_step(self):
         self.model.eval()
@@ -70,11 +68,11 @@ class Trainer():
                 output = self.model(x)
                 loss = self.loss_fn(output, y)
 
-                total_loss += loss.item() * x['pixel_values'].shape[0]
+                total_loss += loss.item() * x.shape[0]
                 correct += sum(output.argmax(dim=1) == y).item() # classification task
                 
-        return total_loss/self.len_valid, correct/self.len_valid
-
+        return total_loss/len(self.valid_loader.dataset), correct/len(self.valid_loader.dataset)
+    
     def test(self, test_loader):
         self.model.load_state_dict(torch.load(self.best_model_path))
         self.model.eval()

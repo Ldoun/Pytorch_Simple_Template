@@ -84,7 +84,7 @@ if __name__ == "__main__":
         )
         
         trainer = Trainer(
-            train_loader, valid_loader, model, loss_fn, optimizer, scheduler, device, args.patience, args.epochs, fold_result_path, fold_logger, len(train_dataset), len(valid_dataset))
+            train_loader, valid_loader, model, loss_fn, optimizer, scheduler, device, args.patience, args.epochs, fold_result_path, fold_logger)
         trainer.train() #start training
 
         test_dataset = DataSet(file_list=test_data['path'].values, label=test_data['label'].values)
@@ -97,10 +97,3 @@ if __name__ == "__main__":
         
         stackking_input.loc[valid_index, output_index] = trainer.test(valid_loader) #use the validation data(hold out dataset) to make input for Stacking Ensemble model(out of fold prediction)
         stackking_input.to_csv(os.path.join(result_path, f'for_stacking_input.csv'), index=False)
-
-        '''np.savez_compressed(os.path.join(fold_result_path, 'test_prediction'), trainer.test(test_loader))
-        np.savez_compressed(os.path.join(fold_result_path, 'valid_prediction'), trainer.test(valid_loader))
-        np.savez(os.path.join(fold_result_path, 'valid_index'), valid_index)''' # case when output size is big
-
-'''prediction['label'] = np.argmax(test_result, axis=-1) #use the most likely results as my final prediction
-prediction.drop(columns=output_index).to_csv(os.path.join(result_path, 'prediction.csv'), index=False)''' #classification
