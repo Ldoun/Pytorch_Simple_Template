@@ -4,7 +4,7 @@ class base():
     def __init__(self, *args):
         pass
 
-    def step():
+    def step(self):
         pass
 
 def get_sch(scheduler):
