@@ -5,7 +5,7 @@ import numpy as np
 from tqdm import tqdm
 
 class Trainer():
-    def __init__(self, train_loader, valid_loader, model, loss_fn, optimizer, scheduler, device, patience, epochs, result_path, fold_logger, len_train, len_valid):
+    def __init__(self, train_loader, valid_loader, model, loss_fn, optimizer, scheduler, device, patience, epochs, result_path, fold_logger):
         self.train_loader = train_loader
         self.valid_loader = valid_loader
         self.model = model
