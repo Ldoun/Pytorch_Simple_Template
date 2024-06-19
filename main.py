@@ -75,7 +75,7 @@ if __name__ == "__main__":
         model = Temp(args).to(device) #make model based on the model name and args
         loss_fn = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
-        scheduler = get_sch(args.scheduler)(optimizer)
+        scheduler = get_sch(args.scheduler, optimizer)
 
         train_loader = DataLoader(
             train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, #pin_memory=True
