@@ -52,11 +52,12 @@ if __name__ == "__main__":
         test_result = prediction[output_index].values
         stackking_input = pd.read_csv(os.path.join(result_path, f'for_stacking_input.csv'))
 
-    skf = StratifiedKFold(n_splits=args.cv_k, random_state=args.seed, shuffle=True) #Using StratifiedKFold for cross-validation    
-    for fold, (train_index, valid_index) in enumerate(skf.split(train_data['path'], train_data['label'])): #by skf every fold will have similar label distribution
+    skf = StratifiedKFold(n_splits=args.cv_k, random_state=args.seed, shuffle=True).split(train_data['path'], train_data['label']) #Using StratifiedKFold for cross-validation    
+    for fold, (train_index, valid_index) in enumerate(skf): #by skf every fold will have similar label distribution
         if args.continue_train > fold+1:
             logger.info(f'skipping {fold+1}-fold')
             continue
+        seed_everything(args.seed) #fix seed
         fold_result_path = os.path.join(result_path, f'{fold+1}-fold')
         os.makedirs(fold_result_path)
         fold_logger = logger.getChild(f'{fold+1}-fold')
