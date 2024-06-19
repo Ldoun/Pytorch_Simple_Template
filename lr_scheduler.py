@@ -3,11 +3,14 @@ import torch.optim.lr_scheduler as sch
 
 class base():
     def __init__(self, *args):
-        pass
+        self.optimizer = args[0]
 
     def step(self):
         pass
 
+    def get_last_lr(self):
+        return [param_group['lr'] for param_group in self.optimizer.param_groups]
+    
 class Warmup(sch._LRScheduler):
     def __init__(self, optimizer, num_annealing_steps, num_total_steps):
         self.num_annealing_steps = num_annealing_steps
