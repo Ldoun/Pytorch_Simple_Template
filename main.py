@@ -3,7 +3,7 @@ import sys
 import logging
 import pandas as pd
 from functools import partial
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, train_test_split
 
 import torch
 from torch import optim, nn
@@ -51,7 +51,7 @@ if __name__ == "__main__":
         prediction = pd.read_csv(os.path.join(result_path, 'sum.csv'))
         test_result = prediction[output_index].values
         stackking_input = pd.read_csv(os.path.join(result_path, f'for_stacking_input.csv'))
-
+  
     skf = StratifiedKFold(n_splits=args.cv_k, random_state=args.seed, shuffle=True).split(train_data['path'], train_data['label']) #Using StratifiedKFold for cross-validation    
     for fold, (train_index, valid_index) in enumerate(skf): #by skf every fold will have similar label distribution
         if args.continue_train > fold+1:
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         model = Temp(args).to(device) #make model based on the model name and args
         loss_fn = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
-        scheduler = get_sch(args.scheduler, optimizer)
+        scheduler = get_sch(args.scheduler, optimizer, warmup_epochs=args.warmup_epochs, epochs=args.epochs)
 
         train_loader = DataLoader(
             train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, #pin_memory=True
