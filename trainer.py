@@ -5,7 +5,7 @@ import numpy as np
 from tqdm import tqdm
 
 class Trainer():
-    def __init__(self, train_loader, valid_loader, model, loss_fn, optimizer, scheduler, device, patience, epochs, result_path, fold_logger):
+    def __init__(self, train_loader, valid_loader, model, loss_fn, optimizer, scheduler, device, patience, epochs, result_path, fold_logger, **kargs):
         self.train_loader = train_loader
         self.valid_loader = valid_loader
         self.model = model
@@ -17,10 +17,13 @@ class Trainer():
         self.epochs = epochs
         self.logger = fold_logger
         self.best_model_path = os.path.join(result_path, 'best_model.pt')
+        self.last_model_path = os.path.join(result_path, 'last_model.pt')
+
+        self.start_epoch = kargs['start_epochs'] if 'start_epochs' in kargs else 0
     
     def train(self):
         best = np.inf
-        for epoch in range(1,self.epochs+1):
+        for epoch in range(self.start_epoch + 1, self.epochs+1):
             print(f'lr: {self.scheduler.get_last_lr()}')
             loss_train, score_train = self.train_step()
             loss_val, score_val = self.valid_step()
@@ -30,7 +33,14 @@ class Trainer():
 
             if loss_val < best:
                 best = loss_val
-                torch.save(self.model.state_dict(), self.best_model_path)
+                torch.save({
+                    'model':self.model.state_dict(),
+                    'optimizer': self.optimizer.state_dict(),
+                    'scheduler': self.scheduler.state_dict(),
+                    'epoch': epoch,
+                    'score_val': score_val.item(),
+                    'loss_val': loss_val.item(), 
+                }, self.best_model_path)
                 bad_counter = 0
 
             else:
@@ -38,6 +48,15 @@ class Trainer():
 
             if bad_counter == self.patience:
                 break
+
+            torch.save({
+                'model':self.model.state_dict(),
+                'optimizer': self.optimizer.state_dict(),
+                'scheduler': self.scheduler.state_dict(),
+                'epoch': epoch,
+                'score_val': score_val.item(),
+                'loss_val': loss_val.item(), 
+            }, self.last_model_path)
 
     def train_step(self):
         self.model.train()

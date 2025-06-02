@@ -10,6 +10,7 @@ def args_for_data(parser):
     
 def args_for_train(parser):
     parser.add_argument('--cv_k', type=int, default=10, help='k-fold stratified cross validation')
+    parser.add_argument('--test_size', type=int, default=0.3, help='test size for stratified train-test split, (main.py)')
     parser.add_argument('--num_workers', type=int, default=4, help='num_workers')
     parser.add_argument('--batch_size', type=int, default=None, help='batch_size')
     parser.add_argument('--epochs', type=int, default=1000, help='max epochs')
@@ -19,6 +20,7 @@ def args_for_train(parser):
     parser.add_argument('--warmup_epochs', type=int, default=10, help='number of warmup epoch of lr scheduler')
 
     parser.add_argument('--continue_train', type=int, default=-1, help='continue training from fold x') 
+    parser.add_argument('--continue_train_from', type=str, default=None, help='continue training from last model, (main.py)') 
     parser.add_argument('--continue_from_folder', type=str, help='continue training from args.continue_from')
 
 def get_args():
