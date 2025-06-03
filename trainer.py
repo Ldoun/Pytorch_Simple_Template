@@ -16,8 +16,8 @@ class Trainer():
         self.patience = patience
         self.epochs = epochs
         self.logger = fold_logger
-        self.best_model_path = os.path.join(result_path, 'best_model')
-        self.last_model_path = os.path.join(result_path, 'last_model')
+        self.best_model_path = os.path.join(result_path, 'best_model.pt')
+        self.last_model_path = os.path.join(result_path, 'last_model.pt')
 
         self.start_epoch = kargs['start_epochs'] if 'start_epochs' in kargs else 0
     
@@ -33,14 +33,14 @@ class Trainer():
 
             if loss_val < best:
                 best = loss_val
-                self.model.save_pretrained(self.best_model_path)
                 torch.save({
+                    'model':self.model.state_dict(),
                     'optimizer': self.optimizer.state_dict(),
                     'scheduler': self.scheduler.state_dict(),
                     'epoch': epoch,
                     'score_val': score_val.item(),
                     'loss_val': loss_val.item(), 
-                }, os.path.join(self.best_model_path, 'state.pt'))
+                }, self.best_model_path)
                 bad_counter = 0
 
             else:
@@ -49,14 +49,14 @@ class Trainer():
             if bad_counter == self.patience:
                 break
 
-            self.model.save_pretrained(self.last_model_path)
             torch.save({
+                'model':self.model.state_dict(),
                 'optimizer': self.optimizer.state_dict(),
                 'scheduler': self.scheduler.state_dict(),
                 'epoch': epoch,
                 'score_val': score_val.item(),
                 'loss_val': loss_val.item(), 
-            }, os.path.join(self.last_model_path, 'state.pt'))
+            }, self.last_model_path)
 
     def train_step(self):
         self.model.train()
@@ -94,7 +94,7 @@ class Trainer():
         return total_loss/len(self.valid_loader.dataset), correct/len(self.valid_loader.dataset)
     
     def test(self, test_loader):
-        self.model.from_pretrained(self.best_model_path)
+        self.model.load_state_dict(torch.load(self.best_model_path))
         self.model.eval()
         with torch.no_grad():
             result = []
